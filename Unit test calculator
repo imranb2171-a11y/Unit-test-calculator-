@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usage-Based Billing Calculator with Unit Tests</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    label { display: block; margin: 10px 0 5px; }
+    input[type=number] { width: 100px; }
+    .total { margin-top: 20px; font-weight: bold; font-size: 1.2em; }
+    .test-result { margin-top: 30px; }
+    .pass { color: green; }
+    .fail { color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>Usage-Based Billing Calculator</h1>
+
+  <label for="usage">Usage Quantity:</label>
+  <input type="number" id="usage" min="0" value="0" oninput="updateCost()" />
+
+  <label for="unitPrice">Price per Unit ($):</label>
+  <input type="number" id="unitPrice" min="0" step="0.01" value="0" oninput="updateCost()" />
+
+  <div class="total" id="totalCost">Total Cost: $0.00</div>
+
+  <h2>Unit Tests</h2>
+  <button onclick="runTests()">Run Tests</button>
+  <div class="test-result" id="testResults"></div>
+
+  <script>
+    function calculateTotalCost(usage, unitPrice) {
+      if (usage < 0) throw new Error("Usage cannot be negative");
+      if (unitPrice < 0) throw new Error("Unit price cannot be negative");
+      return usage * unitPrice;
+    }
+
+    function updateCost() {
+      const usage = parseFloat(document.getElementById('usage').value) || 0;
+      const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
+      const total = calculateTotalCost(usage, unitPrice);
+      document.getElementById('totalCost').textContent = 'Total Cost: $' + total.toFixed(2);
+    }
+
+    function runTests() {
+      const results = [];
+      try {
+        // Test 1: Normal calculation
+        if (calculateTotalCost(10, 2) === 20) {
+          results.push({test: '10 units * $2 = $20', pass: true});
+        } else {
+          results.push({test: '10 units * $2 = $20', pass: false});
+        }
+
+        // Test 2: Zero usage
+        if (calculateTotalCost(0, 100) === 0) {
+          results.push({test: '0 usage results in $0', pass: true});
+        } else {
+          results.push({test: '0 usage results in $0', pass: false});
+        }
+
+        // Test 3: Zero price
+        if (calculateTotalCost(100, 0) === 0) {
+          results.push({test: '0 price results in $0', pass: true});
+        } else {
+          results.push({test: '0 price results in $0', pass: false});
+        }
+
+        // Test 4: Negative usage throws error
+        try {
+          calculateTotalCost(-1, 1);
+          results.push({test: 'Negative usage throws error', pass: false});
+        } catch {
+          results.push({test: 'Negative usage throws error', pass: true});
+        }
+
+        // Test 5: Negative price throws error
+        try {
+          calculateTotalCost(1, -1);
+          results.push({test: 'Negative price throws error', pass: false});
+        } catch {
+          results.push({test: 'Negative price throws error', pass: true});
+        }
+
+      } catch (e) {
+        results.push({test: 'Unexpected error: ' + e.message, pass: false});
+      }
+
+      displayTestResults(results);
+    }
+
+    function displayTestResults(results) {
+      const container = document.getElementById('testResults');
+      container.innerHTML = '';
+      results.forEach(result => {
+        const div = document.createElement('div');
+        div.textContent = result.test + ': ' + (result.pass ? 'PASS' : 'FAIL');
+        div.className = result.pass ? 'pass' : 'fail';
+        container.appendChild(div);
+      });
+    }
+  </script>
+
+</body>
+</html>
